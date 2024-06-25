@@ -11,11 +11,13 @@ const {
 const {
   getUsers,
   getUser,
+  getUsersPagin,
   createUser,
   updateUser,
   deleteUser,
   uploadUserImage,
    resizeImage,
+   
 //   changeUserPassword,
 //   getLoggedUserData,
 //   updateLoggedUserPassword,
@@ -49,6 +51,9 @@ router
     uploadUserImage,resizeImage,
     // createUserValidator,
     createUser);
+   // Pagination des utilisateurs
+router.route('/pagi')
+.get(getUsersPagin); 
  router
   .route('/:id')
   .get(getUserValidator,getUser)

@@ -2,11 +2,24 @@ const asyncHandler = require('express-async-handler');
 const Vaction = require('../models/vacationModel');
 
 
+exports.getVactionsEmploye = asyncHandler(async (req, res) => {
+  const page = parseInt(req.query.page) || 1; // Current page number, default is 1
+  const limit = parseInt(req.query.limit) || 4; // Number of vacations per page, default is 6
+  const skip = (page - 1) * limit; // Calculate the number of items to skip
 
+  const vacations = await Vaction.find({ status: { $exists: true, $ne: null } })
+      .populate("employee")
+      .skip(skip)
+      .limit(limit);
+     const countVac=await Vaction.countDocuments()
+      const totalPages=Math.ceil(countVac/limit)
+  res.json({vacation:vacations,totalPages:totalPages});
+});
 exports.getVacations = asyncHandler(async (req, res) => {
   let x;
   let y=req.query.status
-  if(y=="null")
+  console.log(y,x)
+  if(y=="null" || !y)
   {
       x=null
   }
@@ -85,12 +98,13 @@ exports.getVacationsFil = asyncHandler(async (req, res) => {
   
   exports.updateVacation = asyncHandler(async (req, res) => {
     const { periode, enddate, strtdate, typevaction, status } = req.body;
+    console.log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",req.body)
     const vacation = await Vaction.findById(req.params.id);
     if (vacation) {
-      vacation.periode = periode;
-      vacation.enddate = enddate;
-      vacation.strtdate = strtdate;
-      vacation.typevaction = typevaction;
+      periode ?  vacation.periode = periode: null;
+      enddate ? vacation.enddate = enddate :null;
+      strtdate ? vacation.strtdate = strtdate : null;
+      typevaction ? vacation.typevaction = typevaction :null;
       vacation.status = status;
   
       const updatedVacation = await vacation.save();
@@ -100,42 +114,7 @@ exports.getVacationsFil = asyncHandler(async (req, res) => {
       throw new Error('Vacation not found');
     }
   });
-//   exports.elbou = asyncHandler(async (req, res) => {
-//     let x;
 
-// if(req.body.status=='true')
-// {
-//   x=true
-// }
-// else
-// x=false
-
-// const vocation = await Vaction.findByIdAndUpdate(req.params.id, {status:x}, {
-//       new: true,
-//     });
-//      if (vocation) {
-
-//       res.json(vocation);
-//     } else {
-//       res.status(404);
-//       throw new Error('Vacation not found');
-//     }
-//     // const { periode, enddate, strtdate, typevaction, status } = req.body;
-//     // const vacation = await Vaction.findById(req.params.id);
-//     // if (vacation) {
-//     //   vacation.periode = periode;
-//     //   vacation.enddate = enddate;
-//     //   vacation.strtdate = strtdate;
-//     //   vacation.typevaction = typevaction;
-//     //   vacation.status = status;
-  
-//     //   const updatedVacation = await vacation.save();
-//     //   res.json(updatedVacation);
-//     // } else {
-//     //   res.status(404);
-//     //   throw new Error('Vacation not found');
-//     // }
-//   });
   exports.deleteVacation = asyncHandler(async (req, res) => {
     const vacation = await Vaction.findById(req.params.id);
     if (vacation) {
